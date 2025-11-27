@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UBC Squirrel Translator 🐿️</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <h1>UBC Squirrel Translator 🐿️</h1>
+    <p class="subtitle">
+        Upload a squirrel. We&apos;ll ask OpenAI what it&apos;s thinking.
+    </p>
+
+    <div class="container">
+
+        <!-- Left panel: upload + controls -->
+        <div class="card">
+            <h2>Upload Squirrel Photo</h2>
+
+            <div class="upload-box">
+                <p id="uploadPlaceholder">Drop a squirrel pic or choose a file.</p>
+                <img id="previewImg" style="display:none;" alt="Squirrel preview" />
+            </div>
+
+            <input type="file" accept="image/*" id="fileInput" />
+
+            <button id="translateBtn">Translate Squirrel Thoughts ✨</button>
+            <p id="status" class="status"></p>
+        </div>
+
+        <!-- Right panel: output -->
+        <div class="card" id="outputCard">
+            <p class="placeholder-text">
+                Once translated, your squirrel&apos;s inner monologue will appear here.
+            </p>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
