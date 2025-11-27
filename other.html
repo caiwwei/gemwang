@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UBC Squirrel Translator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 30px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .upload-box {
+            border: 3px dashed #ccc;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 20px;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #previewImg {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+        }
+
+        input[type="file"] {
+            display: block;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .mood {
+            display: inline-block;
+            background: #f0f0f0;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            color: #666;
+        }
+
+        .chat-container {
+            height: 400px;
+            overflow-y: auto;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: #f9f9f9;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            border-radius: 10px;
+            max-width: 80%;
+        }
+
+        .message.user {
+            background: #667eea;
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .message.squirrel {
+            background: white;
+            border: 2px solid #eee;
+        }
+
+        .message.system {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            max-width: 100%;
+            text-align: center;
+            font-style: italic;
+        }
+
+        .chat-input-area {
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .stats {
+            margin-top: 15px;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .placeholder-text {
+            color: #999;
+            text-align: center;
+            padding: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Squirrels of UBC 🐿️</h1>
+    <p class="subtitle">Upload a UBC squirrel. Chat with it to reveal its chaotic inner thoughts.</p>
+
+    <div class="container">
+        <!-- Left side: upload -->
+        <div class="card">
+            <h2>Upload Squirrel Photo</h2>
+
+            <div class="upload-box" id="previewBox">
+                <p id="placeholder">Drop a squirrel pic here or select below.</p>
+                <img id="previewImg" style="display:none;" />
+            </div>
+
+            <input type="file" accept="image/*" id="fileInput" />
+
+            <button id="analyzeBtn">Analyze Squirrel Personality ✨</button>
+            
+            <div id="personalityBox" style="margin-top: 20px; display: none;">
+                <div class="mood" id="moodDisplay"></div>
+                <p class="stats" id="statsDisplay"></p>
+            </div>
+        </div>
+
+        <!-- Right side: chat -->
+        <div class="card">
+            <h2>Chat with Your Squirrel</h2>
+            <div id="chatArea">
+                <p class="placeholder-text">Upload and analyze a squirrel to start chatting!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const PERSONALITIES = {
+            hungry: {
+                responses: [
+                    "Food. Now. Please.",
+                    "Is that... food? Give it to me.",
+                    "I'm starving. Do you have snacks?",
+                    "Your lunch looks delicious. Hand it over.",
+                    "I haven't eaten in 10 minutes. This is an emergency.",
+                    "That better be for me.",
+                    "Snack time is all the time."
+                ],
+                greetings: [
+                    "Hi. Do you have food?",
+                    "Hello. I'm very hungry.",
+                    "You look like someone with snacks."
+                ]
+            },
+            "judging you": {
+                responses: [
+                    "Interesting choice you made there.",
+                    "I've seen better.",
+                    "Really? That's what you're going with?",
+                    "I'm not impressed.",
+                    "Did you think that through?",
+                    "Hmm. No comment.",
+                    "I have opinions about this."
+                ],
+                greetings: [
+                    "I'm watching you.",
+                    "Go ahead. I'm listening.",
+                    "This should be interesting..."
+                ]
+            },
+            chaotic: {
+                responses: [
+                    "ZOOM ZOOM ZOOM!",
+                    "Can't talk, must RUN!",
+                    "Everything is HAPPENING!",
+                    "I just climbed 6 trees in 2 minutes!",
+                    "Chaos is my middle name!",
+                    "NO TIME TO EXPLAIN, GOTTA GO!",
+                    "AHHHHHHH! *runs in circle*"
+                ],
+                greetings: [
+                    "HI! BYE! HI AGAIN!",
+                    "HELLO HUMAN! *jumps*",
+                    "What's up?! Everything is up! The trees!"
+                ]
+            },
+            tired: {
+                responses: [
+                    "Ugh. Too much effort.",
+                    "Can we not?",
+                    "I'm too tired for this.",
+                    "Just... let me rest.",
+                    "Why is everything so hard?",
+                    "I need a nap. Always.",
+                    "*yawns* What?"
+                ],
+                greetings: [
+                    "Oh. It's you. Hi.",
+                    "Hello. I'm exhausted.",
+                    "Can this wait? I'm tired."
+                ]
+            },
+            scheming: {
+                responses: [
+                    "Interesting. Tell me more...",
+                    "I'm taking notes on this.",
+                    "That gives me ideas...",
+                    "Perfect. This fits my plan.",
+                    "You've fallen right into my trap.",
+                    "Excellent. Continue.",
+                    "I know something you don't know."
+                ],
+                greetings: [
+                    "Ah, right on time.",
+                    "I've been expecting you.",
+                    "Let's discuss... business."
+                ]
+            }
+        };
+
+        const SNACKS = ["donut", "bagel", "granola bar", "bubble tea", "panini"];
+
+        function rand(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        function genStats() {
+            return {
+                hunger: 50 + Math.floor(Math.random() * 50),
+                chaos: 30 + Math.floor(Math.random() * 70),
+                friendliness: 20 + Math.floor(Math.random() * 80)
+            };
+        }
+
+        // ---- DOM Logic ---- //
+        const fileInput = document.getElementById("fileInput");
+        const previewImg = document.getElementById("previewImg");
+        const placeholder = document.getElementById("placeholder");
+        const analyzeBtn = document.getElementById("analyzeBtn");
+        const chatArea = document.getElementById("chatArea");
+        const personalityBox = document.getElementById("personalityBox");
+        const moodDisplay = document.getElementById("moodDisplay");
+        const statsDisplay = document.getElementById("statsDisplay");
+
+        let currentPersonality = null;
+        let currentStats = null;
+        let chatMessages = [];
+
+        // Show image preview
+        fileInput.addEventListener("change", () => {
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            const url = URL.createObjectURL(file);
+            previewImg.src = url;
+            previewImg.style.display = "block";
+            placeholder.style.display = "none";
+        });
+
+        // Analyze squirrel
+        analyzeBtn.addEventListener("click", () => {
+            if (!previewImg.src || previewImg.style.display === "none") {
+                alert("Upload a squirrel first!");
+                return;
+            }
+
+            const personalities = Object.keys(PERSONALITIES);
+            currentPersonality = rand(personalities);
+            currentStats = genStats();
+            chatMessages = [];
+
+            moodDisplay.textContent = `Personality: ${currentPersonality}`;
+            statsDisplay.innerHTML = `
+                Hunger: ${currentStats.hunger}% •
+                Chaos: ${currentStats.chaos}% •
+                Friendliness: ${currentStats.friendliness}%
+            `;
+            personalityBox.style.display = "block";
+
+            // Initialize chat
+            initChat();
+        });
+
+        function initChat() {
+            const greeting = rand(PERSONALITIES[currentPersonality].greetings);
+            
+            chatArea.innerHTML = `
+                <div class="chat-container" id="chatMessages"></div>
+                <div class="chat-input-area">
+                    <input type="text" id="userInput" placeholder="Say something to the squirrel..." />
+                    <button id="sendBtn">Send</button>
+                </div>
+            `;
+
+            addMessage('system', `The squirrel has been analyzed! Personality: ${currentPersonality}`);
+            addMessage('squirrel', greeting);
+
+            document.getElementById("sendBtn").addEventListener("click", sendMessage);
+            document.getElementById("userInput").addEventListener("keypress", (e) => {
+                if (e.key === "Enter") sendMessage();
+            });
+        }
+
+        function addMessage(type, text) {
+            const chatMessages = document.getElementById("chatMessages");
+            const msgDiv = document.createElement("div");
+            msgDiv.className = `message ${type}`;
+            msgDiv.textContent = text;
+            chatMessages.appendChild(msgDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function sendMessage() {
+            const input = document.getElementById("userInput");
+            const text = input.value.trim();
+            
+            if (!text) return;
+
+            addMessage('user', text);
+            input.value = "";
+
+            // Squirrel responds
+            setTimeout(() => {
+                const response = rand(PERSONALITIES[currentPersonality].responses);
+                addMessage('squirrel', response);
+            }, 500);
+        }
+    </script>
+</body>
+</html>
