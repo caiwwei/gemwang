@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UBC Squirrel Translator</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <h1>UBC Squirrel Translator 🐿️</h1>
+    <p class="subtitle">Upload a squirrel. We will reveal its chaotic inner thoughts.</p>
+
+    <div class="container">
+
+        <!-- Left side: upload -->
+        <div class="card">
+            <h2>Upload Squirrel Photo</h2>
+
+            <div class="upload-box" id="previewBox">
+                <p id="placeholder">Drop a squirrel pic here or select below.</p>
+                <img id="previewImg" style="display:none;" />
+            </div>
+
+            <input type="file" accept="image/*" id="fileInput" />
+
+            <label>Mood (optional)</label>
+            <select id="scenario">
+                <option value="">Auto-detect vibes</option>
+                <option value="hungry">Stealing food</option>
+                <option value="judging you">Judging you silently</option>
+                <option value="chaotic">Running around</option>
+                <option value="tired">Post-midterm vibes</option>
+                <option value="scheming">Planning a heist</option>
+            </select>
+
+            <button id="translateBtn">Translate Squirrel Thoughts ✨</button>
+        </div>
+
+        <!-- Right side: result -->
+        <div class="card" id="outputBox">
+            <p class="placeholder-text">Your squirrel’s inner monologue will appear here.</p>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
